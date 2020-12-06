@@ -1,13 +1,13 @@
 #ifndef main_H_
 #define main_H_ 	
 
-#define R 3
-#define C 3
+#define SIZE 4
 
 int main();
+void printMenuOptions();
 void pictureManipulationPrintMenu();
-void numbersPuzzleMainMenu();
+void numbersPuzzleMenu();
 void swap(int *xp, int *yp);
-void printMatrix(int arr[R][C]);
+void printMatrix(int *mat);
 
 #endif

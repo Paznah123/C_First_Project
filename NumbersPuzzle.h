@@ -1,13 +1,13 @@
 #ifndef NumbersPuzzle_H_
 #define NumbersPuzzle_H_ 	
 
-#define R 3
-#define C 3
-
-int NumbersPuzzle();
-void initMatrix(int mat[R][C]);
+void initMatrix(int *mat);
 int randDirection();
-int checkValidMove(int move, int row, int col);
+int updatePtr(int **matPtr, int ptrAdd, int *edgeIndicator, int edgeAdd);
+void makeMove (int **matPtr, int *d, int *row, int *col);
+void shuffleMat(int **matPtr,int num, int *row, int *col);
+int checkWinnerBoard(int *matPtr);
+int NumbersPuzzle();
 
 #endif
 

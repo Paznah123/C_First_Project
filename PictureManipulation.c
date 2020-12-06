@@ -4,95 +4,86 @@
 
 #include "main.h"
 
-// After transpose we swap 
-// elements of column 
-// one by one for finding left 
-// rotation of matrix 
-// by 90 degree 
-void reverseColumns(int arr[R][C]) { 
-    for (int i = 0; i < C; i++) 
-        for (int j = 0, k = C - 1; j < k; j++, k--) 
-            swap(&arr[j][i], &arr[k][i]);  
-                
+void fillMatNums(int *matPtr) {
+    srand(time(0));
+	for(int i = 0; i < SIZE; i++) {
+   	    for(int j = 0; j < SIZE; j++) {
+ 			*matPtr =rand() % 50;
+  			printf("%d\t",*matPtr);
+  			matPtr++;
+      	}
+    	printf("\n");
+	}    
+}
+
+void reverseRows(int *matPtr) { 
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0, k = SIZE - 1; j < k; j++, k--) {
+            swap(matPtr+SIZE*i+j,matPtr + SIZE*i+k);
+        }
+    }
 } 
 
-void reverseRows(int arr[R][C]) {
+void reverseColumns(int *matPtr) {
     int  k;
-    for (int i = 0; i < R; i++){
-       k = R-1;
+    for (int i = 0; i < SIZE; i++){
+       k = SIZE-1;
        for (int j = 0; j < k; j++) {
- 	  swap(&arr[i][j],&arr[i][k]);
- 	  k--;
+     	  swap(matPtr+SIZE*j+i,matPtr+SIZE*k+i);
+     	  k--;
        }
     }
 }
 
 // matrix transpose  
-void transpose(int arr[R][C]) { 
-    for (int i = 0; i < R; i++) 
-        for (int j = i; j < C; j++) 
+void transpose(int *matPtr) { 
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = i; j < SIZE; j++) {
        	    if(i!=j)
-       	      swap(&arr[i][j], &arr[j][i]); 
+       	      swap(matPtr + SIZE*i+j, matPtr + SIZE*j+i); 
+        }
+    }
 } 
 
-// rotate matrix by 90 degree counter/clockwise
-void rotate90Clockwise(int arr[R][C]) {    
-    transpose(arr); 
-    reverseRows(arr);
+void rotate90(int *matPtr, int ch) {    
+    transpose(matPtr); 
+    if(ch == 1) // clockwise
+        reverseRows(matPtr);
+    if(ch == 2) // counterclockwise
+        reverseColumns(matPtr); 
 } 
 
-void rotate90CounterClockwise(int arr[R][C]) {     
-    transpose(arr); 
-    reverseColumns(arr); 
-} 
-  
-void flipHorizontal(int arr[R][C]){
- reverseColumns(arr);
-}
-
-void flipVertical(int arr[R][C]){
-    reverseRows(arr);
-}
-
+// main func
 void PictureManipulation() {
-	int mat[R][C];
-	int i,j;
-       	srand(time(0));
-    	for(i = 0; i < R; i++) {
-   		for(j = 0; j < C ; j++) {
-     			mat[i][j]=rand() % 50;
-      			printf("%d\t",mat[i][j]);
-  		}
-   	 	printf("\n");
+    int mat[SIZE][SIZE];
+    int *matPtr = &mat[0][0];
+    fillMatNums(matPtr);
+
+	pictureManipulationPrintMenu();
+	int ch;
+	scanf("%d", &ch);
+	while ( ch != 0) {
+    	switch (ch) {
+    		case 1://clockwise
+    		case 2://counterclockwise
+    			rotate90(matPtr, ch);
+    			printMatrix(matPtr);
+    			break;
+    		case 3: // flipHorizontal
+    			reverseColumns(matPtr);
+    			printMatrix(matPtr);
+    			break;
+    		case 4: // flipVertical
+    			reverseRows(matPtr);
+    			printMatrix(matPtr);
+    			break;
+    		default:
+			    printf("Invalid Input! \n");
+    		    break;
     	}
-    	pictureManipulationPrintMenu();
-    	int ch;
-    	scanf("%d", &ch);
-    	while ( ch != -1) {
-		switch (ch) {
-			case 0:
-				main();
-				break;
-			case 1:
-				rotate90Clockwise(mat);
-				printMatrix(mat);
-				break;
-			case 2:
-		    		rotate90CounterClockwise(mat);
-		    		printMatrix(mat);
-				break;
-			case 3:
-				flipHorizontal(mat);
-				printMatrix(mat);
-				break;
-			case 4:
-				flipVertical(mat);
-				printMatrix(mat);
-				break;
-		}
-    		pictureManipulationPrintMenu();
-		scanf("%d", &ch);
-    	}
-	printf("Bye Bye");	
+		pictureManipulationPrintMenu();
+		getchar();
+	    scanf("%d", &ch);
+	}
 }
   

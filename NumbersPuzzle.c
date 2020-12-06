@@ -4,120 +4,129 @@
 
 #include "main.h"
 
-#define SHUFFEL_COUNT 10
+#define SHUFFEL_COUNT 20
 
-void initMatrix(int mat[R][C]) {
+// initialize matrix
+void initMatrix (int *matPtr) {
     int counter = 1;
-    int i, j;
-    for (i = 0; i < R; i++) {
-        for (j = 0; j < C; j++) {
-            mat[i][j] = counter++;
-        }
+    for (int i = 0; i < SIZE; i++) {
+        for (int j = 0; j < SIZE; j++) {
+	        *matPtr = counter++;
+	        matPtr++;
+	    }
     }
-    mat[R - 1][C - 1] = 0;
+    *(matPtr - 1) = 0;
 }
 
-// 0 up 
-//1 right
-//2 down
-//3 left
-int randDirection() {
-    	int i, n;
-    	srand(time(0));
-	for (i = 0; i < SHUFFEL_COUNT; i++) {
-    		n = rand() % 4;
-	}
-    	return n;
+// choose random direction
+int randDirection () {
+    int i, n;
+    for (i = 0; i < SHUFFEL_COUNT; i++) {
+      n = 1 + rand () % 4;
+    }
+    return n;
 }
 
-int checkValidMove(int move, int row, int col) {
-    switch (move) {
-        // 0 up 
-    case 0:
-        if (row - 1 < 0)
-            return 0;
-        break;
-        //1 right
-    case 1:
-        if (col + 1 >= C)
-            return 0;
-        break;
-        //2 down
-    case 2:
-        if (row + 1 >= R)
-            return 0;
-        break;
-        //3 left
-    case 3:
-        if (col - 1 < 0)
-            return 0;
-        break;
-    }
+// updates matrix pointers and swaps values
+int updatePtr(int **matPtr, int ptrAdd, int *edgeIndicator, int edgeAdd){
+    swap(*matPtr, *matPtr + ptrAdd);
+    *matPtr += ptrAdd;
+    *edgeIndicator += edgeAdd;
     return 1;
 }
 
-void shuffleMat(int mat[R][C]) {
-    	int i = R - 1, j = C - 1;
-    	int d = randDirection();
-    	int validMove = checkValidMove(d, i, j);
-	if (validMove) {
-		switch (d) {
-        		case 0: // UP
-            			swap(&mat[i][j], &mat[i - 1][j]);
-            			i -= 1;
-				printf("0");
-            			break;            
-       			case 1: // RIGHT
-            			swap(&mat[i][j], &mat[i][j + 1]);
-            			j += 1;
-				printf("1");
-            			break;          
-        		case 2: // DOWN
-            			swap(&mat[i][j], &mat[i + 1][j]);
-            			i += 1;
-				printf("2");
-            			break;       
-        		case 3: // LEFT
-           			swap(&mat[i][j], &mat[i][j - 1]);
-            			j -= 1;
-				printf("3");
-            			break;
-        	}
-	}
+// moves 0 in chosen direction 
+int makeMove (int **matPtr, int *d, int *row, int *col) {
+        switch (*d) { // if's check if move is valid
+            case 1:	// UP
+               if(*row - 1 >= 0)
+                    return updatePtr(matPtr,-SIZE, row, -1);
+                break;
+            case 2:	// RIGHT
+                if(*col + 1 < SIZE)
+                    return updatePtr(matPtr, 1, col, 1);
+                break;
+            case 3:	// DOWN
+                if(*row + 1 < SIZE)
+                    return updatePtr(matPtr, SIZE, row, 1);
+                break;
+            case 4:	// LEFT
+                if(*col - 1 >= 0)
+                    return updatePtr(matPtr, -1, col, -1);
+                break;
+        }
+        printf("Invalid Move! \n");
+        return 0;
 }
 
-void checkWin() {
-// check if board is arranged by ascending order if yes player wins
-// else ask player what is next move
-// check if player move is valid
-// make move
-// print array
+void shuffleMat(int **matPtr, int *num, int *row, int *col) {
+    int i = 0;
+    while(i != SHUFFEL_COUNT) {
+        *num = randDirection();
+        if(makeMove(matPtr ,num, row, col))
+            i++; // i increase whe nvalid move is made
+    }
 }
 
-int NumbersPuzzle() {
-	int mat[R][C];
-    	initMatrix(mat);
-	printMatrix(mat);
-	for (int i = 0; i < SHUFFEL_COUNT; i++) {
-    		shuffleMat(mat);    
-        printf("\n");
-        printMatrix(mat);
-} 
-    	return 0;
+// checks if board is arranged by ascending order
+int checkWinnerBoard(int *matPtr) {
+    int counter = 1;
+    for (int i = 0; i < SIZE*SIZE-1; i++) {
+        if(*matPtr != counter)
+            return 0;
+        else {
+            counter++;
+            matPtr++;
+        }
+    }
+    printf("You win! The game is over! \n");
+    return 1;
 }
 
+// main func
+int NumbersPuzzle () {
+    int mat[SIZE][SIZE];
+    int *matPtr = &mat[0][0];
+    initMatrix (matPtr);
+    
+    // pointer to 0 location
+    int *lastElementPtr = matPtr + SIZE*SIZE-1;
+    
+    // edge of board indicators
+    int row = SIZE-1;
+    int col = SIZE-1;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    time_t t;
+    srand ((unsigned) time (&t));
+    int num = 0;
+    
+    shuffleMat(&lastElementPtr, &num, &row, &col);
+    
+    printMatrix(matPtr);
+    numbersPuzzleMenu();
+    
+    int choice = 5;
+    scanf ("%d", &choice);
+    while (choice != 0) {
+            switch (choice) {
+        	    case 1:	// UP
+        	    case 2:	// RIGHT
+        	    case 3:	// DOWN
+        	    case 4:	// LEFT
+            	    makeMove (&lastElementPtr, &choice, &row, &col);
+            	    break;
+        	   default:
+        	        printf("Invalid Move! \n");
+        	        break;
+            }
+            printMatrix(matPtr);
+            printf("\n");
+            if(!checkWinnerBoard(matPtr)){
+                numbersPuzzleMenu();   
+                getchar();
+                scanf ("%d", &choice);
+            } else 
+                break;
+    }
+    return 0;
+}
